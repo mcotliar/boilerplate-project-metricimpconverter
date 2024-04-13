@@ -1,6 +1,6 @@
 
 const validUnits = new Map();
-validUnits.set('gal','l');
+validUnits.set('gal','L');
 validUnits.set('mi','km');
 validUnits.set('lbs','kg');
 validUnits.set('l','gal');
@@ -9,7 +9,8 @@ validUnits.set('kg','lbs');
 
 const unitDescription = new Map();
 unitDescription.set('gal','gallons');
-unitDescription.set('l','L');
+unitDescription.set('l','l');
+unitDescription.set('L','L');
 unitDescription.set('mi','miles');
 unitDescription.set('km','kilometers');
 unitDescription.set('lbs','libres');
@@ -42,20 +43,20 @@ function ConvertHandler() {
       }
     }
     if (error) {
-      throw new Error('invalid num');
+      throw new Error('number');
     }
     
     return result[1];
   };
   
   this.getUnit = function(input) {
-    let result =  input.match(/^[\d\.\/]+([a-zA-Z]+)$/);
+    let result =  input.match(/^[\d\.\/]+([a-z]+)$/);
     if (typeof result?.[1] === "undefined") {
-      throw new Error('invalid unit');
+      throw new Error('unit');
     }
     const unit = result?.[1];
     if (!validUnits.get(unit)){
-      throw new Error('invalid unit');
+      throw new Error('unit');
     }
     
     return unit;
@@ -71,6 +72,9 @@ function ConvertHandler() {
     let result = unitDescription.get(unit);    
     return result;
   };
+  function toFixedIfNecessary( value, dp ){
+    return +parseFloat(value).toFixed( dp );
+  }
   
   this.convert = function(initNum, initUnit) {
     const galToL = 3.78541;
@@ -100,7 +104,8 @@ function ConvertHandler() {
       default:
         throw new Error('number/unit invalid');
     }
-    return result;
+
+    return toFixedIfNecessary(result,5);
   };
   
   this.getString = function(initNum, initUnit, returnNum, returnUnit) {
@@ -110,26 +115,44 @@ function ConvertHandler() {
   };
   
   this.getConversion = function(input){
-    console.log('trying to convert',input);
+    
     input = input.toLowerCase();
+    console.log('trying to convert',input);
     if (validUnits.get(input)) input='1'+input;
-    const initNum = this.getNum(input)*1;
-    let initUnit = this.getUnit(input);
+    let errors = [];
+    let initNum;
+    try{
+      initNum = this.getNum(input)*1;
+    } catch(e){
+      errors.push(e.message);
+    }
+    let initUnit;
+    try{
+     initUnit = this.getUnit(input);
+    } catch(e){
+      errors.push(e.message);
+    }
+    if (errors.length){
+      const newErrorMessage = `invalid `+errors.join(' and ');
+      throw new Error(newErrorMessage);
+    }
     const returnNum = this.convert(initNum,initUnit)*1;
-    const returnUnit = this.getReturnUnit(initUnit);
+    let returnUnit = this.getReturnUnit(initUnit);
 
     let fullUnitName = this.spellOutUnit(initUnit);
     let fullReturnUnitName = this.spellOutUnit(returnUnit);
-    if (fullUnitName === 'l'){
+    if (initUnit === 'l'){
+      initUnit = 'L';
       fullUnitName = 'L';
     }
     
-    if (fullReturnUnitName === 'l'){
+    if (returnUnit === 'l'){
+      returnUnit = 'L';
       fullReturnUnitName = 'L';
     }
     const fullString = `${initNum} ${fullUnitName} converts to ${returnNum} ${fullReturnUnitName}`;
-
     const result = {initNum,initUnit,returnNum,returnUnit,string:fullString };
+    console.log('getConversion',{result});
     return result;
   }
 }
