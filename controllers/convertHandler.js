@@ -1,3 +1,5 @@
+const e = require('cors');
+const math = require('mathjs');
 
 const validUnits = new Map();
 validUnits.set('gal','L');
@@ -25,28 +27,36 @@ function ConvertHandler() {
       throw new Error('invalid num');
     }
     let error = false;
-    if (result[1] === ''){
+    let response = result[1];
+    if (response === ''){
       error = true;
     }
 
-    else if (result[1].replaceAll('/','').length<result[1].length-1){
+    else if (response.replaceAll('/','').length<response.length-1){
       error = true;
     }
+    
     else {
       try{
-        if (!isFinite(eval(result[1]))){
+        if (!isFinite(eval(response))){
           error = true;
+        }
+        else {
+          console.log({input,response});
+          response = math.evaluate(`${response}`);
         }
       }
       catch(e){
+        console.log({e,response});
         error = true;
       }
     }
+
     if (error) {
       throw new Error('number');
     }
     
-    return result[1];
+    return response;
   };
   
   this.getUnit = function(input) {

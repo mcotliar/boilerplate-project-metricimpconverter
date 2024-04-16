@@ -7,7 +7,7 @@ describe('ConvertHandler Tests', () => {
   // Test for getNum
   it('should extract the number from a valid input string', () => {
     const result = convertHandler.getNum('10gal');
-    expect(result).to.equal('10');
+    expect(result).to.equal(10);
   });
 
   it('should throw an error for invalid number format', () => {
