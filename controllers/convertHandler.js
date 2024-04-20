@@ -42,12 +42,11 @@ function ConvertHandler() {
           error = true;
         }
         else {
-          console.log({input,response});
           response = math.evaluate(`${response}`);
         }
       }
       catch(e){
-        console.log({e,response});
+        // console.log({e,response});
         error = true;
       }
     }
@@ -127,7 +126,6 @@ function ConvertHandler() {
   this.getConversion = function(input){
     
     input = input.toLowerCase();
-    console.log('trying to convert',input);
     if (validUnits.get(input)) input='1'+input;
     let errors = [];
     let initNum;
@@ -162,7 +160,6 @@ function ConvertHandler() {
     }
     const fullString = `${initNum} ${fullUnitName} converts to ${returnNum} ${fullReturnUnitName}`;
     const result = {initNum,initUnit,returnNum,returnUnit,string:fullString };
-    console.log('getConversion',{result});
     return result;
   }
 }
